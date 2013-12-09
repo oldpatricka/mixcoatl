@@ -1,5 +1,6 @@
 from mixcoatl.resource import Resource
 from mixcoatl.decorators.lazy import lazy_property
+from mixcoatl.decorators.validations import required_attrs
 from mixcoatl.utils import camelize
 
 class ConfigurationManagementAccount(Resource):
@@ -66,6 +67,28 @@ class ConfigurationManagementAccount(Resource):
     @lazy_property
     def owning_groups(self):
         return self.__owning_groups
+
+    @required_attrs(['access_key', 'account_number', 'secret_key', 'description', 'name', 'cm_service_id'])
+    def create(self):
+        """Creates a new CM account."""
+
+        parms = [{'accessKey':self.access_key,
+                  'accountNumber': self.account_number,
+                  'secretKey': self.secret_key,
+                  'description': self.description,
+                  'name': self.name,
+                  'label': 'red',
+                  'cmService': {'cmServiceId':self.cm_service_id}}]
+
+        payload = {'addUser':camel_keys(parms)}
+        #print payload
+
+	response = self.post(data=json.dumps(payload))
+	if self.last_error is None:
+		self.load()
+		return response
+	else:
+		raise CMCreationException(self.last_error)
         
     @classmethod
     def all(cls, **kwargs):
@@ -80,3 +103,9 @@ class ConfigurationManagementAccount(Resource):
             return [cls(i[camelize(cls.PRIMARY_KEY)]) for i in x[cls.COLLECTION_NAME]]
         else:
             return x.last_error
+
+class CMException(BaseException): pass
+	
+class CMCreationException(CMException):
+    """CM Creation Exception"""
+    pass
