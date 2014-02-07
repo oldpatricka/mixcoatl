@@ -61,6 +61,33 @@ class FirewallRule(Resource):
         self.__protocol = p
 
     @lazy_property
+    def source_type(self):
+        """`str` - The network protocol for this rule"""
+        return self.__source_type
+
+    @source_type.setter
+    def source_type(self, s):
+        self.__source_type = s
+
+    @lazy_property
+    def permission(self):
+        """`str` - The permission for this rule"""
+        return self.__permission
+
+    @permission.setter
+    def permission(self, p):
+        self.__permission = p
+
+    @lazy_property
+    def destination(self):
+        """`str` - The destination for this rule"""
+        return self.__destination
+
+    @destination.setter
+    def destination(self, d):
+        self.__destination = d
+
+    @lazy_property
     def start_port(self):
         """`int` or `None` - The start port for this rule"""
         return self.__start_port
@@ -78,7 +105,8 @@ class FirewallRule(Resource):
     def end_port(self, p):
         self.__end_port = p
 
-    @required_attrs(['firewall', 'network_address', 'protocol', 'direction', 'start_port', 'end_port'])
+    # Disable this for testing
+    #@required_attrs(['firewall', 'network_address', 'protocol', 'direction', 'start_port', 'end_port'])
     def create(self, **kwargs):
         """Create a new firewall rule
 
@@ -104,6 +132,10 @@ class FirewallRule(Resource):
             'end_port': self.end_port,
             'protocol': self.protocol,
             'reason': reason,
+            'source_type': self.source_type,
+            'source': self.source,
+            'permission': self.permission,
+            'destination': self.destination,
             'cidr' : self.network_address}]}
 
         if self.firewall_rule_id is not None:
